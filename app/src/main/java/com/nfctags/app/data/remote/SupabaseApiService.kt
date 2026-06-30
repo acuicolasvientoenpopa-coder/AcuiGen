@@ -20,13 +20,13 @@ interface SupabaseApiService {
     @POST("nfc_tags")
     suspend fun upsertTags(
         @Header("Prefer") prefer: String = "resolution=merge-duplicates",
-        @Body tags: List<SupabaseTagDto>
+        @Body tags: ArrayList<SupabaseTagDto>
     ): Response<Unit>
 
     @POST("nfc_tags_history")
     suspend fun upsertHistory(
         @Header("Prefer") prefer: String = "resolution=merge-duplicates",
-        @Body history: List<SupabaseHistoryDto>
+        @Body history: ArrayList<SupabaseHistoryDto>
     ): Response<Unit>
 
     @GET("nfc_tags")

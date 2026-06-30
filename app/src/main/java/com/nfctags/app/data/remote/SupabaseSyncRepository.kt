@@ -25,7 +25,7 @@ class SupabaseSyncRepository @Inject constructor(
         try {
             val unsyncedTags = localRepo.getUnsyncedTags()
             if (unsyncedTags.isNotEmpty()) {
-                val dtos = unsyncedTags.map { it.toSupabaseDto() }
+                val dtos = ArrayList(unsyncedTags.map { it.toSupabaseDto() })
                 val response = api.upsertTags(dtos)
                 if (response.isSuccessful) {
                     val now = System.currentTimeMillis()
@@ -47,7 +47,7 @@ class SupabaseSyncRepository @Inject constructor(
         try {
             val unsyncedHistory = localRepo.getUnsyncedHistory()
             if (unsyncedHistory.isNotEmpty()) {
-                val dtos = unsyncedHistory.map { it.toSupabaseDto() }
+                val dtos = ArrayList(unsyncedHistory.map { it.toSupabaseDto() })
                 val response = api.upsertHistory(dtos)
                 if (response.isSuccessful) {
                     val ids = unsyncedHistory.map { it.id }
