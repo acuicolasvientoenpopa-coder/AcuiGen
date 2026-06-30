@@ -1,0 +1,6 @@
+name = "acuigen"
+compatibility_date = "2026-06-30"
+
+[pages]
+build_command = "echo 'static'"
+build_output_dir = "public"
