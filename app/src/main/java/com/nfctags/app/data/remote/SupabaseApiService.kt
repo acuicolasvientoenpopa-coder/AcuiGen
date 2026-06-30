@@ -46,10 +46,10 @@ interface SupabaseApiService {
     suspend fun updateTag(
         @Query("id") id: String,
         @Body tag: SupabaseTagDto
-    ): Response<ResponseBody>
+    ): Response<Unit>
 
     @DELETE("nfc_tags")
     suspend fun deleteTag(
         @Query("id") id: String
-    ): Response<ResponseBody>
+    ): Response<Unit>
 }
