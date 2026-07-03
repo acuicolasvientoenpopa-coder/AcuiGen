@@ -2,6 +2,8 @@ package com.nfctags.app.auth
 
 import android.util.Log
 import com.google.gson.Gson
+import com.nfctags.app.data.remote.BackendApiService
+import com.nfctags.app.data.remote.SignupDirectRequest
 import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -15,6 +17,7 @@ sealed class AuthResult {
 @Singleton
 class AuthRepository @Inject constructor(
     private val authApi: AuthApiService,
+    private val backendApi: BackendApiService,
     private val tokenManager: TokenManager
 ) {
     companion object {
@@ -33,8 +36,45 @@ class AuthRepository @Inject constructor(
 
     suspend fun signup(email: String, password: String): AuthResult {
         return try {
-            val response = authApi.signup(AuthSignupRequest(email, password))
-            handleSessionResponse(response)
+            val response = backendApi.signupDirect(SignupDirectRequest(email, password, ""))
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null && body.user != null) {
+                    val user = body.user
+                    val loginResponse = authApi.login(AuthLoginRequest(email, password))
+                    if (loginResponse.isSuccessful) {
+                        val session = loginResponse.body()
+                        if (session != null && session.access_token != null) {
+                            tokenManager.saveSession(
+                                accessToken = session.access_token,
+                                refreshToken = session.refresh_token,
+                                userId = user.id,
+                                email = user.email,
+                                expiresIn = session.expires_in ?: 3600L
+                            )
+                            AuthResult.Success
+                        } else {
+                            AuthResult.Error("Error al iniciar sesión automáticamente")
+                        }
+                    } else {
+                        val errorBody = loginResponse.errorBody()?.string()
+                        AuthResult.Error(errorBody ?: "Error al iniciar sesión")
+                    }
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    AuthResult.Error(errorBody ?: "Error al crear cuenta")
+                }
+            } else {
+                val errorBody = response.errorBody()?.string()
+                val msg = try {
+                    Gson().fromJson(errorBody, AuthError::class.java)?.let {
+                        it.error_description ?: it.message ?: it.error ?: "Error desconocido"
+                    } ?: "Error ${response.code()}"
+                } catch (_: Exception) {
+                    "Error ${response.code()}: ${response.message()}"
+                }
+                AuthResult.Error(msg)
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Signup error", e)
             AuthResult.Error("Error de conexión: ${e.localizedMessage ?: "Sin conexión"}")

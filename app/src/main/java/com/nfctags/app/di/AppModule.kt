@@ -7,6 +7,7 @@ import com.nfctags.app.auth.SupabaseAuthInterceptor
 import com.nfctags.app.data.dao.TagDao
 import com.nfctags.app.data.dao.ValueHistoryDao
 import com.nfctags.app.data.database.AppDatabase
+import com.nfctags.app.data.remote.BackendApiService
 import com.nfctags.app.data.remote.SupabaseApiService
 import com.nfctags.app.sync.SyncManager
 import dagger.Module
@@ -28,6 +29,7 @@ object AppModule {
     private const val SUPABASE_URL = "https://smvjffbeshxcfltjoolm.supabase.co/rest/v1/"
     private const val SUPABASE_AUTH_URL = "https://smvjffbeshxcfltjoolm.supabase.co/auth/v1/"
     private const val SUPABASE_ANON_KEY = "sb_publishable_EQRvreJDv4d-wYZmaMY3Bg_x2D3kM_v"
+    private const val BACKEND_URL = "https://acuacal21-production.up.railway.app/api/"
 
     @Provides
     @Singleton
@@ -131,5 +133,39 @@ object AppModule {
     @Singleton
     fun provideAuthApi(@AuthRetrofit retrofit: Retrofit): AuthApiService {
         return retrofit.create(AuthApiService::class.java)
+    }
+
+    @BackendOkHttpClient
+    @Provides
+    @Singleton
+    fun provideBackendOkHttpClient(): OkHttpClient {
+        return OkHttpClient.Builder()
+            .addInterceptor { chain ->
+                val request = chain.request().newBuilder()
+                    .addHeader("Accept", "application/json")
+                    .build()
+                chain.proceed(request)
+            }
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
+            .build()
+    }
+
+    @BackendRetrofit
+    @Provides
+    @Singleton
+    fun provideBackendRetrofit(@BackendOkHttpClient client: OkHttpClient): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(BACKEND_URL)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideBackendApi(@BackendRetrofit retrofit: Retrofit): BackendApiService {
+        return retrofit.create(BackendApiService::class.java)
     }
 }

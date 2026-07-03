@@ -17,3 +17,11 @@ annotation class DataOkHttpClient
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class AuthOkHttpClient
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class BackendRetrofit
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class BackendOkHttpClient
