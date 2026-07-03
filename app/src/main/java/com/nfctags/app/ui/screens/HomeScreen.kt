@@ -76,7 +76,7 @@ fun HomeScreen(
                 title = {
                     Column {
                         Text(
-                            text = "AcuiGen",
+                            text = "NFC Tags",
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold
                         )

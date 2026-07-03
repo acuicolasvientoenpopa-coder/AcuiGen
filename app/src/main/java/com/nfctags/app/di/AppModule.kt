@@ -2,6 +2,8 @@ package com.nfctags.app.di
 
 import android.content.Context
 import androidx.room.Room
+import com.nfctags.app.data.dao.TagDao
+import com.nfctags.app.data.dao.ValueHistoryDao
 import com.nfctags.app.data.database.AppDatabase
 import com.nfctags.app.data.remote.SupabaseApiService
 import com.nfctags.app.sync.SyncManager
@@ -33,6 +35,14 @@ object AppModule {
             "nfc_tags_db"
         ).build()
     }
+
+    @Provides
+    @Singleton
+    fun provideTagDao(db: AppDatabase): TagDao = db.tagDao()
+
+    @Provides
+    @Singleton
+    fun provideValueHistoryDao(db: AppDatabase): ValueHistoryDao = db.valueHistoryDao()
 
     @Provides
     @Singleton
