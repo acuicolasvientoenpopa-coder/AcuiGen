@@ -58,13 +58,14 @@ class AuthViewModel @Inject constructor(
                     _uiState.value = _uiState.value.copy(isLoading = false)
                     _events.emit(AuthEvent.Error(result.message))
                 }
+                is AuthResult.EmailConfirmationRequired -> {}
             }
         }
     }
 
     fun signup(email: String, password: String) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = false)
+            _uiState.value = _uiState.value.copy(isLoading = true)
             when (val result = authRepository.signup(email, password)) {
                 is AuthResult.Success -> {
                     _uiState.value = AuthUiState(
@@ -74,6 +75,10 @@ class AuthViewModel @Inject constructor(
                         userId = tokenManager.userId
                     )
                     _events.emit(AuthEvent.Success("Cuenta creada correctamente"))
+                }
+                is AuthResult.EmailConfirmationRequired -> {
+                    _uiState.value = _uiState.value.copy(isLoading = false)
+                    _events.emit(AuthEvent.Success("Cuenta creada. Revisa tu email para confirmar"))
                 }
                 is AuthResult.Error -> {
                     _uiState.value = _uiState.value.copy(isLoading = false)
@@ -108,6 +113,7 @@ class AuthViewModel @Inject constructor(
                     _uiState.value = _uiState.value.copy(isLoading = false)
                     _events.emit(AuthEvent.Error(result.message))
                 }
+                is AuthResult.EmailConfirmationRequired -> {}
             }
         }
     }

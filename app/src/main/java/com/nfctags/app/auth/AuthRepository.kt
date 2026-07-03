@@ -8,6 +8,7 @@ import javax.inject.Singleton
 
 sealed class AuthResult {
     data object Success : AuthResult()
+    data object EmailConfirmationRequired : AuthResult()
     data class Error(val message: String) : AuthResult()
 }
 
@@ -102,14 +103,18 @@ class AuthRepository @Inject constructor(
         return if (response.isSuccessful) {
             val body = response.body()
             if (body != null && body.user != null) {
-                tokenManager.saveSession(
-                    accessToken = body.access_token,
-                    refreshToken = body.refresh_token,
-                    userId = body.user.id,
-                    email = body.user.email,
-                    expiresIn = body.expires_in
-                )
-                AuthResult.Success
+                if (body.access_token.isBlank()) {
+                    AuthResult.EmailConfirmationRequired
+                } else {
+                    tokenManager.saveSession(
+                        accessToken = body.access_token,
+                        refreshToken = body.refresh_token,
+                        userId = body.user.id,
+                        email = body.user.email,
+                        expiresIn = body.expires_in
+                    )
+                    AuthResult.Success
+                }
             } else {
                 val errorBody = response.errorBody()?.string()
                 AuthResult.Error(errorBody ?: "Error desconocido")
