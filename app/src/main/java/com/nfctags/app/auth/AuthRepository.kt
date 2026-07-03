@@ -47,13 +47,13 @@ class AuthRepository @Inject constructor(
             val response = authApi.refreshToken(AuthRefreshRequest(currentRefresh))
             if (response.isSuccessful) {
                 val body = response.body()
-                if (body != null) {
+                if (body != null && body.access_token != null) {
                     tokenManager.saveSession(
                         accessToken = body.access_token,
                         refreshToken = body.refresh_token,
                         userId = body.user?.id ?: "",
                         email = body.user?.email,
-                        expiresIn = body.expires_in
+                        expiresIn = body.expires_in ?: 0L
                     )
                     true
                 } else false
@@ -103,7 +103,7 @@ class AuthRepository @Inject constructor(
         return if (response.isSuccessful) {
             val body = response.body()
             if (body != null && body.user != null) {
-                if (body.access_token.isBlank()) {
+                if (body.access_token.isNullOrBlank()) {
                     AuthResult.EmailConfirmationRequired
                 } else {
                     tokenManager.saveSession(
@@ -111,7 +111,7 @@ class AuthRepository @Inject constructor(
                         refreshToken = body.refresh_token,
                         userId = body.user.id,
                         email = body.user.email,
-                        expiresIn = body.expires_in
+                        expiresIn = body.expires_in ?: 0L
                     )
                     AuthResult.Success
                 }
