@@ -2,30 +2,19 @@ package com.nfctags.app.data.remote
 
 import retrofit2.Response
 import retrofit2.http.Body
-import retrofit2.http.DELETE
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.POST
-import retrofit2.http.PATCH
 import retrofit2.http.Query
 
 interface SupabaseApiService {
 
     @POST("nfc_tags")
-    suspend fun upsertTag(
-        @Header("Prefer") prefer: String = "resolution=merge-duplicates",
-        @Body tag: SupabaseTagDto
-    ): Response<Unit>
-
-    @POST("nfc_tags")
     suspend fun upsertTags(
-        @Header("Prefer") prefer: String = "resolution=merge-duplicates",
         @Body tags: ArrayList<SupabaseTagDto>
     ): Response<Unit>
 
     @POST("nfc_tags_history")
     suspend fun upsertHistory(
-        @Header("Prefer") prefer: String = "resolution=merge-duplicates",
         @Body history: ArrayList<SupabaseHistoryDto>
     ): Response<Unit>
 
@@ -41,15 +30,4 @@ interface SupabaseApiService {
         @Query("tag_id") tagId: String? = null,
         @Query("order") order: String = "timestamp.desc"
     ): Response<List<SupabaseHistoryDto>>
-
-    @PATCH("nfc_tags")
-    suspend fun updateTag(
-        @Query("id") id: String,
-        @Body tag: SupabaseTagDto
-    ): Response<Unit>
-
-    @DELETE("nfc_tags")
-    suspend fun deleteTag(
-        @Query("id") id: String
-    ): Response<Unit>
 }
