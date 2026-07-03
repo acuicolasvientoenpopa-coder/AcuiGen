@@ -17,6 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Nfc
 import androidx.compose.material.icons.filled.Save
@@ -46,15 +47,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
+import com.nfctags.app.util.CsvExporter
 import com.nfctags.app.viewmodel.TagEvent
 import com.nfctags.app.viewmodel.TagViewModel
 
-val nombresCampos = listOf(
+val nombresCamposDefault = listOf(
     "Valor 1", "Valor 2", "Valor 3", "Valor 4", "Valor 5",
     "Valor 6", "Valor 7", "Valor 8", "Valor 9", "Valor 10"
 )
@@ -68,6 +71,7 @@ fun TagDetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val tag = uiState.selectedTag
+    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val focusManager = LocalFocusManager.current
 
@@ -129,6 +133,19 @@ fun TagDetailScreen(
                         Icon(
                             imageVector = Icons.Default.History,
                             contentDescription = "Historial"
+                        )
+                    }
+                    IconButton(onClick = {
+                        if (tag != null) {
+                            val labels = uiState.fieldLabels.ifEmpty { nombresCamposDefault }
+                            CsvExporter.exportTagWithHistory(
+                                context, tag, uiState.history, labels
+                            )
+                        }
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.Download,
+                            contentDescription = "Exportar CSV"
                         )
                     }
                     IconButton(onClick = {
@@ -241,7 +258,10 @@ fun TagDetailScreen(
                         valores = valores.toMutableList().apply { set(index, nuevo) }
                         edited = true
                     },
-                    label = { Text(nombresCampos[index]) },
+                    label = {
+                        val labels = uiState.fieldLabels.ifEmpty { nombresCamposDefault }
+                        Text(labels.getOrElse(index) { "Valor ${index + 1}" })
+                    },
                     singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth()

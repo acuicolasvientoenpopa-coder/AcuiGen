@@ -18,8 +18,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.nfctags.app.auth.AuthViewModel
 import com.nfctags.app.ui.screens.HistoryScreen
 import com.nfctags.app.ui.screens.HomeScreen
+import com.nfctags.app.ui.screens.LoginScreen
 import com.nfctags.app.ui.screens.TagDetailScreen
 import com.nfctags.app.ui.theme.NfcTagsTheme
 import com.nfctags.app.viewmodel.TagViewModel
@@ -41,29 +43,57 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val viewModel: TagViewModel = hiltViewModel()
+                    val authViewModel: AuthViewModel = hiltViewModel()
+                    val tagViewModel: TagViewModel = hiltViewModel()
                     val navController = rememberNavController()
                     var nfcEscaneando by remember { mutableStateOf(false) }
+                    var authReady by remember { mutableStateOf(false) }
 
                     LaunchedEffect(Unit) {
-                        viewModel.nfcTagCapturado.collect { tag ->
-                            viewModel.procesarTagNfc(tag)
+                        authViewModel.checkSession()
+                        authReady = true
+                    }
+
+                    LaunchedEffect(Unit) {
+                        tagViewModel.nfcTagCapturado.collect { tag ->
+                            tagViewModel.procesarTagNfc(tag)
                         }
                     }
 
-                    NavHost(
-                        navController = navController,
-                        startDestination = "home"
-                    ) {
+                    LaunchedEffect(nfcEscaneando) {
+                        if (nfcEscaneando && pendingTag != null) {
+                            tagViewModel.procesarTagNfc(pendingTag!!)
+                            pendingTag = null
+                            nfcEscaneando = false
+                        }
+                    }
+
+                    if (authReady) {
+                        NavHost(
+                            navController = navController,
+                            startDestination = if (authViewModel.uiState.value.isLoggedIn) "home" else "login"
+                        ) {
+                        composable("login") {
+                            LoginScreen(
+                                authViewModel = authViewModel,
+                                onLoginSuccess = {
+                                    navController.navigate("home") {
+                                        popUpTo("login") { inclusive = true }
+                                    }
+                                }
+                            )
+                        }
+
                         composable("home") {
                             HomeScreen(
-                                viewModel = viewModel,
+                                viewModel = tagViewModel,
+                                authViewModel = authViewModel,
                                 onTagClick = { tagId ->
-                                    viewModel.seleccionarTag(tagId)
+                                    tagViewModel.seleccionarTag(tagId)
                                     navController.navigate("detail")
                                 },
                                 onNuevoTag = {
-                                    viewModel.crearNuevoTag()
+                                    tagViewModel.crearNuevoTag()
                                     navController.navigate("detail")
                                 },
                                 onScanNfc = {
@@ -74,7 +104,7 @@ class MainActivity : ComponentActivity() {
 
                         composable("detail") {
                             TagDetailScreen(
-                                viewModel = viewModel,
+                                viewModel = tagViewModel,
                                 onBack = {
                                     navController.popBackStack()
                                 },
@@ -87,13 +117,14 @@ class MainActivity : ComponentActivity() {
                         composable("history/{tagId}") { backStackEntry ->
                             val tagId = backStackEntry.arguments?.getString("tagId") ?: return@composable
                             HistoryScreen(
-                                viewModel = viewModel,
+                                viewModel = tagViewModel,
                                 tagId = tagId,
                                 onBack = {
                                     navController.popBackStack()
                                 }
                             )
                         }
+                    }
                     }
                 }
             }
@@ -109,7 +140,6 @@ class MainActivity : ComponentActivity() {
             val tag = intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG)
             if (tag != null) {
                 pendingTag = tag
-                // La notificación se maneja desde el ViewModel a través del flujo
             }
         }
     }

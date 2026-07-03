@@ -2,6 +2,8 @@ package com.nfctags.app.di
 
 import android.content.Context
 import androidx.room.Room
+import com.nfctags.app.auth.AuthApiService
+import com.nfctags.app.auth.SupabaseAuthInterceptor
 import com.nfctags.app.data.dao.TagDao
 import com.nfctags.app.data.dao.ValueHistoryDao
 import com.nfctags.app.data.database.AppDatabase
@@ -24,6 +26,7 @@ import javax.inject.Singleton
 object AppModule {
 
     private const val SUPABASE_URL = "https://smvjffbeshxcfltjoolm.supabase.co/rest/v1/"
+    private const val SUPABASE_AUTH_URL = "https://smvjffbeshxcfltjoolm.supabase.co/auth/v1/"
     private const val SUPABASE_ANON_KEY = "sb_publishable_EQRvreJDv4d-wYZmaMY3Bg_x2D3kM_v"
 
     @Provides
@@ -50,9 +53,12 @@ object AppModule {
         return SyncManager(context)
     }
 
+    @DataOkHttpClient
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient {
+    fun provideDataOkHttpClient(
+        authInterceptor: SupabaseAuthInterceptor
+    ): OkHttpClient {
         val logging = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
@@ -60,11 +66,11 @@ object AppModule {
             .addInterceptor { chain ->
                 val request = chain.request().newBuilder()
                     .addHeader("apikey", SUPABASE_ANON_KEY)
-                    .addHeader("Authorization", "Bearer $SUPABASE_ANON_KEY")
                     .addHeader("Accept", "application/json")
                     .build()
                 chain.proceed(request)
             }
+            .addInterceptor(authInterceptor)
             .addInterceptor(logging)
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
@@ -72,9 +78,10 @@ object AppModule {
             .build()
     }
 
+    @DataRetrofit
     @Provides
     @Singleton
-    fun provideRetrofit(client: OkHttpClient): Retrofit {
+    fun provideDataRetrofit(@DataOkHttpClient client: OkHttpClient): Retrofit {
         return Retrofit.Builder()
             .baseUrl(SUPABASE_URL)
             .client(client)
@@ -84,7 +91,45 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideSupabaseApi(retrofit: Retrofit): SupabaseApiService {
+    fun provideSupabaseApi(@DataRetrofit retrofit: Retrofit): SupabaseApiService {
         return retrofit.create(SupabaseApiService::class.java)
+    }
+
+    @AuthOkHttpClient
+    @Provides
+    @Singleton
+    fun provideAuthOkHttpClient(
+        authInterceptor: SupabaseAuthInterceptor
+    ): OkHttpClient {
+        return OkHttpClient.Builder()
+            .addInterceptor { chain ->
+                val request = chain.request().newBuilder()
+                    .addHeader("apikey", SUPABASE_ANON_KEY)
+                    .addHeader("Accept", "application/json")
+                    .build()
+                chain.proceed(request)
+            }
+            .addInterceptor(authInterceptor)
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
+            .build()
+    }
+
+    @AuthRetrofit
+    @Provides
+    @Singleton
+    fun provideAuthRetrofit(@AuthOkHttpClient client: OkHttpClient): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(SUPABASE_AUTH_URL)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideAuthApi(@AuthRetrofit retrofit: Retrofit): AuthApiService {
+        return retrofit.create(AuthApiService::class.java)
     }
 }

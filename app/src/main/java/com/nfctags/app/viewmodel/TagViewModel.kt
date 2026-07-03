@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.nfctags.app.data.entities.TagEntity
 import com.nfctags.app.data.entities.ValueHistoryEntity
+import com.nfctags.app.data.repository.FieldNameRepository
 import com.nfctags.app.data.repository.TagRepository
 import com.nfctags.app.nfc.NfcHandler
 import com.nfctags.app.sync.SyncManager
@@ -24,6 +25,7 @@ data class TagUiState(
     val tags: List<TagEntity> = emptyList(),
     val selectedTag: TagEntity? = null,
     val history: List<ValueHistoryEntity> = emptyList(),
+    val fieldLabels: List<String> = emptyList(),
     val isLoading: Boolean = false,
     val scanning: Boolean = false,
     val error: String? = null,
@@ -43,7 +45,8 @@ class TagViewModel @Inject constructor(
     application: Application,
     private val repository: TagRepository,
     private val nfcHandler: NfcHandler,
-    private val syncManager: SyncManager
+    private val syncManager: SyncManager,
+    private val fieldNameRepo: FieldNameRepository
 ) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(TagUiState())
@@ -59,6 +62,7 @@ class TagViewModel @Inject constructor(
     val nfcTagCapturado = _nfcTagCapturado.asSharedFlow()
 
     init {
+        _uiState.value = _uiState.value.copy(fieldLabels = fieldNameRepo.getFieldLabels())
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
             try {
@@ -201,6 +205,22 @@ class TagViewModel @Inject constructor(
             } catch (e: Exception) {
                 _events.emit(TagEvent.Error("Error: ${e.message}"))
             }
+        }
+    }
+
+    fun actualizarNombresCampos(labels: List<String>) {
+        fieldNameRepo.setFieldLabels(labels)
+        _uiState.value = _uiState.value.copy(fieldLabels = fieldNameRepo.getFieldLabels())
+        viewModelScope.launch {
+            _events.emit(TagEvent.Success("Nombres de campo actualizados"))
+        }
+    }
+
+    fun resetearNombresCampos() {
+        fieldNameRepo.resetToDefaults()
+        _uiState.value = _uiState.value.copy(fieldLabels = fieldNameRepo.getFieldLabels())
+        viewModelScope.launch {
+            _events.emit(TagEvent.Success("Nombres de campo restablecidos"))
         }
     }
 
