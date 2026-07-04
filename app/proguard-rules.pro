@@ -1,7 +1,6 @@
-# Keep Gson serialization
--keepclassmembers class * {
-    @com.google.gson.annotations.SerializedName <fields>;
-}
+# Keep all data classes used by Gson/Retrofit (no @SerializedName annotations used)
+-keep class com.nfctags.app.auth.** { *; }
+-keep class com.nfctags.app.data.remote.** { *; }
 
 # Keep Room entities
 -keep class com.nfctags.app.data.entities.** { *; }

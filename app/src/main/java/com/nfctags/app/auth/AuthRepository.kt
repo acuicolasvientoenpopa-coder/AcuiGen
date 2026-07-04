@@ -36,7 +36,8 @@ class AuthRepository @Inject constructor(
 
     suspend fun signup(email: String, password: String): AuthResult {
         return try {
-            val response = backendApi.signupDirect(SignupDirectRequest(email, password, ""))
+            val defaultNombre = email.substringBefore("@").take(100)
+            val response = backendApi.signupDirect(SignupDirectRequest(email, password, defaultNombre))
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null && body.user != null) {

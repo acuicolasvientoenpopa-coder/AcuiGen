@@ -7,7 +7,7 @@ import retrofit2.http.POST
 data class SignupDirectRequest(
     val email: String,
     val password: String,
-    val nombre: String
+    val nombre: String = "Usuario"
 )
 
 data class SignupDirectResponse(
