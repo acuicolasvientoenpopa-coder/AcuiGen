@@ -1,120 +1,222 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AcuiGen - Descargar APK</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0d47a1 0%, #1565c0 50%, #1976d2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .card {
-            background: rgba(255,255,255,0.98);
-            border-radius: 24px;
-            padding: 48px;
-            max-width: 440px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            text-align: center;
-        }
-        .logo {
-            width: 88px;
-            height: 88px;
-            background: linear-gradient(135deg, #1565c0, #26a69a);
-            border-radius: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 24px;
-            font-size: 36px;
-            color: #fff;
-            font-weight: bold;
-        }
-        h1 { color: #1a1a1a; font-size: 28px; margin-bottom: 8px; }
-        p.sub { color: #666; font-size: 16px; margin-bottom: 32px; line-height: 1.5; }
-        .version { color: #999; font-size: 14px; margin-bottom: 24px; }
-        .btn-download {
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            background: linear-gradient(135deg, #1565c0, #1976d2);
-            color: #fff;
-            border: none;
-            border-radius: 14px;
-            padding: 16px 40px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            transition: transform 0.2s, box-shadow 0.2s;
-            margin-bottom: 24px;
-        }
-        .btn-download:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(21,101,192,0.4); }
-        .btn-download svg { width: 24px; height: 24px; fill: currentColor; }
-        .features {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            text-align: left;
-            margin: 24px 0;
-        }
-        .feature {
-            background: #f5f7fa;
-            border-radius: 10px;
-            padding: 12px;
-            font-size: 13px;
-            color: #444;
-        }
-        .feature span { display: block; font-weight: 700; color: #1565c0; margin-bottom: 2px; font-size: 14px; }
-        .note {
-            background: #fff8e1;
-            border-radius: 10px;
-            padding: 14px;
-            font-size: 13px;
-            color: #795548;
-            margin-top: 20px;
-        }
-        .footer { color: #aaa; font-size: 12px; margin-top: 20px; }
-        @media (max-width: 480px) {
-            .card { padding: 32px 20px; }
-            .features { grid-template-columns: 1fr; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AcuiGen — App NFC para Acuicultura</title>
+<meta name="description" content="App Android NFC para gestión de reproductores acuícolas. Login seguro, 10 campos editables, historial automático y sync en la nube.">
+<meta name="theme-color" content="#0a0e1a">
+<meta property="og:type" content="website">
+<meta property="og:title" content="AcuiGen — App NFC para Acuicultura">
+<meta property="og:description" content="App Android NFC para gestión de reproductores acuícolas. Login seguro, 10 campos editables, historial automático y sync en la nube.">
+<meta property="og:url" content="https://acuigen.acuical.com">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #0a0e1a; --bg2: #0f1424; --bg3: #161c30; --surface: #1a2140;
+  --border: #2a3460; --text: #e8edf5; --text2: #94a3b8; --text3: #64748b;
+  --accent: #0ea5e9; --accent2: #06b6d4; --accent-glow: rgba(14,165,233,0.15);
+  --gradient: linear-gradient(135deg, #0ea5e9, #06b6d4, #10b981);
+  --gradient-text: linear-gradient(135deg, #0ea5e9, #06b6d4);
+  --radius: 16px; --radius-sm: 10px; --shadow: 0 4px 30px rgba(0,0,0,0.3);
+  --font: 'Inter', -apple-system, sans-serif;
+}
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: var(--font); background: var(--bg); color: var(--text);
+  line-height: 1.6; overflow-x: hidden; -webkit-font-smoothing: antialiased;
+}
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  padding: 1rem 2rem; background: rgba(10,14,26,0.8);
+  backdrop-filter: blur(20px); border-bottom: 1px solid transparent;
+}
+.nav-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+.nav-logo { font-size: 1.5rem; font-weight: 800; text-decoration: none; color: var(--text); }
+.nav-logo span { background: var(--gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.75rem 1.75rem; border-radius: 10px;
+  font-size: 0.9rem; font-weight: 600; font-family: var(--font);
+  cursor: pointer; transition: all 0.3s; text-decoration: none; border: none;
+}
+.btn-primary { background: var(--gradient); color: white; box-shadow: 0 4px 20px var(--accent-glow); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--accent-glow); }
+.btn-secondary { background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+.hero {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  padding: 6rem 2rem 4rem; position: relative; overflow: hidden;
+}
+.hero-bg { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.hero-bg .orb {
+  position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.15;
+}
+.hero-bg .orb:nth-child(1) { width: 500px; height: 500px; background: #0ea5e9; top: -150px; left: -150px; animation: float 20s ease-in-out infinite; }
+.hero-bg .orb:nth-child(2) { width: 400px; height: 400px; background: #06b6d4; bottom: -100px; right: -100px; animation: float 25s ease-in-out infinite reverse; }
+@keyframes float {
+  0%, 100% { transform: translate(0,0) scale(1); }
+  33% { transform: translate(30px,-30px) scale(1.05); }
+  66% { transform: translate(-20px,20px) scale(0.95); }
+}
+.hero-content { max-width: 640px; margin: 0 auto; text-align: center; position: relative; z-index: 1; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.4rem 1rem; border-radius: 100px;
+  background: var(--accent-glow); border: 1px solid rgba(14,165,233,0.2);
+  color: var(--accent); font-size: 0.8rem; font-weight: 600; margin-bottom: 1.5rem;
+}
+.hero h1 { font-size: 3rem; font-weight: 800; line-height: 1.1; margin-bottom: 1.5rem; }
+.hero h1 .gradient { background: var(--gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero p { font-size: 1.1rem; color: var(--text2); margin-bottom: 2.5rem; max-width: 520px; margin-left: auto; margin-right: auto; }
+.hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+.card-download {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 3rem; max-width: 480px; margin: 3rem auto 0;
+  text-align: center;
+}
+.card-download .big-icon { font-size: 3rem; margin-bottom: 1rem; }
+.card-download h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+.card-download .ver { color: var(--text3); font-size: 0.85rem; margin-bottom: 1.5rem; }
+.card-download .btn { font-size: 1.1rem; padding: 1rem 2.5rem; }
+.features { padding: 6rem 2rem; }
+.section-inner { max-width: 1200px; margin: 0 auto; }
+.section-label {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.35rem 0.9rem; border-radius: 100px;
+  background: var(--accent-glow); border: 1px solid rgba(14,165,233,0.2);
+  color: var(--accent); font-size: 0.8rem; font-weight: 600; margin-bottom: 1rem;
+}
+.section-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 1rem; }
+.section-subtitle { font-size: 1.1rem; color: var(--text2); max-width: 600px; margin-bottom: 3rem; }
+.features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+.feature-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 2rem; transition: all 0.3s;
+}
+.feature-card:hover { transform: translateY(-4px); border-color: var(--accent); box-shadow: var(--shadow); }
+.feature-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  background: var(--accent-glow); display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; margin-bottom: 1.25rem;
+}
+.feature-card h3 { font-size: 1.15rem; margin-bottom: 0.75rem; }
+.feature-card p { font-size: 0.9rem; color: var(--text2); line-height: 1.7; }
+.note {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 1rem 1.5rem; font-size: 0.85rem; color: var(--text2); margin-top: 1.5rem;
+  display: flex; align-items: center; gap: 0.75rem;
+}
+footer {
+  padding: 3rem 2rem; border-top: 1px solid var(--border);
+  text-align: center; color: var(--text3); font-size: 0.85rem;
+}
+footer a { color: var(--accent); text-decoration: none; }
+.fade-in { opacity: 0; transform: translateY(30px); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+@media (max-width: 900px) {
+  .hero h1 { font-size: 2.2rem; }
+  .features-grid { grid-template-columns: 1fr; max-width: 450px; margin: 0 auto; }
+}
+@media (max-width: 600px) {
+  nav { padding: 0.75rem 1rem; }
+  .hero { padding: 5rem 1rem 3rem; }
+  .hero h1 { font-size: 1.75rem; }
+  .hero p { font-size: 1rem; }
+  .hero-actions { flex-direction: column; align-items: center; }
+  .card-download { padding: 2rem 1.5rem; }
+  section { padding: 3.5rem 1rem; }
+  .section-title { font-size: 1.5rem; }
+}
+</style>
 </head>
 <body>
-    <div class="card">
-        <div class="logo">A</div>
-        <h1>AcuiGen</h1>
-        <p class="sub">App NFC para gestión de reproductores acuícolas. Login seguro, 10 campos editables, historial automático y sync en la nube</p>
 
-        <a href="/AcuiGen.apk" class="btn-download" download>
-            <svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zm7-18L5.33 9h3.84v4h3.66V9h3.84L12 2z" transform="rotate(180,12,12)"/></svg>
-            Descargar APK
-        </a>
+<nav>
+  <div class="nav-inner">
+    <a href="https://acuical.com" class="nav-logo"><span>AcuiGen</span></a>
+    <a href="https://acuical.com" class="btn btn-secondary">← Ecosistema AcuiCal</a>
+  </div>
+</nav>
 
-        <p class="version">v1.3.0 · Login automático · NFC · CSV · Sync</p>
-
-        <div class="features">
-            <div class="feature"><span>NFC</span>Lectura/escritura múltiples tecnologías</div>
-            <div class="feature"><span>Campos</span>10 nombres editables por el usuario</div>
-            <div class="feature"><span>Historial</span>Diff automático campo x campo</div>
-            <div class="feature"><span>Auth</span>Login con Supabase + RLS</div>
-            <div class="feature"><span>CSV</span>Exportación de tags e historial</div>
-            <div class="feature"><span>Offline</span>Room + WorkManager sync</div>
-        </div>
-
-        <div class="note">
-            ⚠️ Primera instalación: habilita "Instalar apps desconocidas" en tu navegador
-        </div>
-
-        <p class="footer">AcuiGen &copy; 2026</p>
+<section class="hero">
+  <div class="hero-bg">
+    <div class="orb"></div>
+    <div class="orb"></div>
+  </div>
+  <div class="hero-content fade-in">
+    <div class="hero-badge">📱 Android · NFC</div>
+    <h1>Gestiona tus reproductores con <span class="gradient">tags NFC</span></h1>
+    <p>App Android para identificación y seguimiento de reproductores acuícolas. Login seguro, 10 campos personalizables, historial automático de cambios y sincronización en la nube.</p>
+    <div class="hero-actions">
+      <a href="/AcuiGen.apk" class="btn btn-primary" download>📥 Descargar APK</a>
+      <a href="#features" class="btn btn-outline">Características</a>
     </div>
+    <div class="card-download fade-in">
+      <div class="big-icon">📲</div>
+      <h2>AcuiGen v1.3.1</h2>
+      <p class="ver">Requiere Android con NFC · APK ~6 MB</p>
+      <a href="/AcuiGen.apk" class="btn btn-primary" download>📥 Descargar APK</a>
+      <div class="note">⚠️ Primera instalación: habilita "Instalar apps desconocidas" en tu navegador</div>
+    </div>
+  </div>
+</section>
+
+<section id="features" class="features" style="background: var(--bg2);">
+  <div class="section-inner">
+    <div class="section-label fade-in">Funcionalidades</div>
+    <h2 class="section-title fade-in">Todo lo que necesitas para tu criadero</h2>
+    <p class="section-subtitle fade-in">Diseñada para productores acuícolas que necesitan identificación confiable y trazabilidad.</p>
+    <div class="features-grid">
+      <div class="feature-card fade-in">
+        <div class="feature-icon">🏷️</div>
+        <h3>Tags NFC</h3>
+        <p>Lectura y escritura de tags NFC. Soporta múltiples tecnologías para identificación única de reproductores.</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">✏️</div>
+        <h3>10 Campos Editables</h3>
+        <p>Personaliza los nombres de los campos según tu operación. Adaptable a cualquier tipo de registro.</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">📋</div>
+        <h3>Historial Automático</h3>
+        <p>Cada cambio se registra automáticamente. Diff campo por campo para ver exactamente qué cambió y cuándo.</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">🔐</div>
+        <h3>Login Seguro</h3>
+        <p>Autenticación con Supabase + RLS. Cada usuario ve solo sus propios datos. Sin configuraciones complejas.</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">📊</div>
+        <h3>Exportación CSV</h3>
+        <p>Exporta tus tags e historial a CSV para análisis externo. Compatible con Excel y Google Sheets.</p>
+      </div>
+      <div class="feature-card fade-in">
+        <div class="feature-icon">🌐</div>
+        <h3>Sin Conexión</h3>
+        <p>Trabaja sin internet. Room database local + WorkManager sync. Los datos se sincronizan automáticamente.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p><a href="https://acuical.com">← Volver al Ecosistema AcuiCal</a></p>
+  <p style="margin-top: 0.5rem;">AcuiGen &copy; 2026 · Parte del ecosistema AcuiCal</p>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('visible'); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
 </body>
 </html>
